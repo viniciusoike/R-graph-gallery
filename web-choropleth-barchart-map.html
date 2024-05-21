@@ -51,7 +51,8 @@ R &#8211; the R Graph Gallery</title>
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description" content="This post describes how to build a
+    <meta name="description" content="A map of neighborhood level HDI
+estimates for Sao Paulo, Brazil. This post describes how to build a
 choropleth map together with a bar chart in R using ggplot2 and
 patchwork." />
     <meta
@@ -68,12 +69,13 @@ R" />
       property="og:image"
       content="https://www.r-graph-gallery.com/img/overview_RGG.png"
     />
-    <meta property="og:description" content="This post describes how to
-build a choropleth map together with a bar chart in R using ggplot2 and
+    <meta property="og:description" content="A map of neighborhood level
+HDI estimates for Sao Paulo, Brazil. This post describes how to build a
+choropleth map together with a bar chart in R using ggplot2 and
 patchwork." />
     <meta
       property="og:url"
-      content="https://www.r-graph-gallery.com/web-choropleth-map-bar-chart.html"
+      content="https://www.r-graph-gallery.com/web-choropleth-barchart-map.html"
     />
     <meta property="og:type" content="website" />
 
@@ -140,7 +142,8 @@ patchwork." />
           </li>
         </ul>
         <center>
-          <p style="max-width: 600px; margin-top: 40px">This post
+          <p style="max-width: 600px; margin-top: 40px">A map of
+neighborhood level HDI estimates for Sao Paulo, Brazil. This post
 describes how to build a choropleth map together with a bar chart in R
 using <code>ggplot2</code> and <code>patchwork</code>.</p>
         </center>
@@ -180,19 +183,28 @@ using <code>ggplot2</code> and <code>patchwork</code>.</p>
 <h1>About</h1>
 <hr />
 <p>This page showcases the work of Vinicius Oike Reginatto. You can find
-the original code on his Github and the original blog post on his
-personal website.</p>
+the original code on his <a
+href="https://github.com/viniciusoike/restateinsight/blob/main/posts/general-posts/2024-02-wz-sp-idh-atlas/index.qmd">Github</a>
+and the original blog post on his <a
+href="https://restateinsight.com/posts/general-posts/2024-02-wz-sp-idh-atlas/">personal
+website</a>.</p>
 <p>Thanks to him for accepting sharing his work here! 🙏🙏</p>
 <p>As a teaser, here is the map we’ll learn how to build. This
-visualization shows the Human Development Index (HDI) at the subregional
-level in Sao Paulo, Brazil’s largest city. The values follow the
-standard United Nations’s HDI: values are in the 0 to 1 range. The
-visualization combines a choropleth map with a bar chart using the
-<code>patchwork</code> package.</p>
-<p>IMAGE</p>
-</div>
-<div id="data-and-libraries" class="section level1">
-<h1>1. Data and Libraries</h1>
+visualization shows the <a
+href="https://en.wikipedia.org/wiki/Human_Development_Index">Human
+Development Index</a> (HDI) at the subregional level in <a
+href="https://en.wikipedia.org/wiki/São_Paulo">Sao Paulo</a>, Brazil’s
+largest city. The values follow the standard United Nations’s HDI:
+values are in the 0 to 1 range. The visualization combines a choropleth
+map with a bar chart using the <code>patchwork</code> package.</p>
+<br>
+<center>
+<img src="img/fromTheWeb/choropleth-barchart-teaser.png"
+style="width:100.0%" />
+</center>
+<p><br></p>
+<div id="data-and-libraries" class="section level2">
+<h2>Data and Libraries</h2>
 <hr />
 <p>To follow this tutorial you will need the following packages.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
@@ -210,9 +222,14 @@ and made it available on my GitHub. To import the data:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>atlas <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_rds</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="st">&quot;https://github.com/viniciusoike/restateinsight/raw/main/static/data/atlas_sp_hdi.rds&quot;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  )</span></code></pre></div>
+<p><br></p>
 </div>
-<div id="basic-map" class="section level1">
-<h1>2. Basic Map</h1>
+</div>
+<div id="the-plot" class="section level1">
+<h1>The plot</h1>
+<hr />
+<div id="basic-map" class="section level2">
+<h2>1. Basic Map</h2>
 <hr />
 <p>At its core, this visualization is a choropleth map that shows the
 spatial distribution of the Human Development Index (HDI) in São Paulo.
@@ -224,8 +241,8 @@ interpreted like a small neighborhood.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">ggplot</span>(atlas) <span class="sc">+</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> HDI), <span class="at">lwd =</span> <span class="fl">0.05</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>)</span></code></pre></div>
 <p><img src="web-choropleth-barchart-map_files/figure-html/base-choropleth-1.png" width="90%" /></p>
-<div id="using-bins" class="section level2">
-<h2>Using bins</h2>
+<div id="using-bins" class="section level3">
+<h3>Using bins</h3>
 <hr />
 <p>We use bins to group the continuous variable HDI. This makes it
 easier to visualize the data and to find spatial clusters. There are
@@ -246,8 +263,8 @@ of the intervals mannually using the <code>breaks</code> argument.</p>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  )</span></code></pre></div>
 <p><img src="web-choropleth-barchart-map_files/figure-html/binned-choropleth-1.png" width="90%" /></p>
 </div>
-<div id="final-map" class="section level2">
-<h2>Final Map</h2>
+<div id="final-map" class="section level3">
+<h3>Final Map</h3>
 <hr />
 <p>The finished version of the map includes simple labels and uses
 <code>theme_map()</code> from the <code>ggthemes</code> package. The
@@ -283,11 +300,12 @@ likely want to change the <code>legend.key.size</code> and
 <span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>  )</span>
 <span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a></span>
 <span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a>pmap</span></code></pre></div>
-<p><img src="web-choropleth-barchart-map_files/figure-html/final-choropleth-1.svg" width="100%" height="900px" /></p>
+<p><img src="web-choropleth-barchart-map_files/figure-html/final-choropleth-1.png" width="100%" /></p>
+<p><br></p>
 </div>
 </div>
-<div id="the-bar-chart" class="section level1">
-<h1>3. The Bar Chart</h1>
+<div id="the-bar-chart" class="section level2">
+<h2>2. The Bar Chart</h2>
 <hr />
 <p>To make the bar chart we need to transform the data. We want to
 calculate the share of the total population that lives within each HDI
@@ -320,8 +338,8 @@ city’s population.</p>
 <span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="fu">ggplot</span>(pop_hdi, <span class="fu">aes</span>(group_hdi, share, <span class="at">fill =</span> group_hdi)) <span class="sc">+</span></span>
 <span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">geom_col</span>()</span></code></pre></div>
 <p><img src="web-choropleth-barchart-map_files/figure-html/base-bar-chart-1.png" width="672" /></p>
-<div id="using-text-labels" class="section level2">
-<h2>Using text labels</h2>
+<div id="using-text-labels" class="section level3">
+<h3>Using text labels</h3>
 <hr />
 <p>Instead of using axis labels we plot the value of each group directly
 on top of each bar. To improve readability we make the color of the text
@@ -356,8 +374,8 @@ argument in <code>geom_text</code>.</p>
 <span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="st">&quot;none&quot;</span>, <span class="at">color =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <p><img src="web-choropleth-barchart-map_files/figure-html/bar-chart-labels-1.png" width="672" /></p>
 </div>
-<div id="final-bar-chart" class="section level2">
-<h2>Final Bar Chart</h2>
+<div id="final-bar-chart" class="section level3">
+<h3>Final Bar Chart</h3>
 <hr />
 <p>We use a custom label for the final version of this plot.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Labels for the color legend</span></span>
@@ -393,10 +411,11 @@ argument in <code>geom_text</code>.</p>
 <span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a></span>
 <span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>pcol</span></code></pre></div>
 <p><img src="web-choropleth-barchart-map_files/figure-html/bar-chart-final-1.png" width="672" /></p>
+<p><br></p>
 </div>
 </div>
-<div id="the-final-plot" class="section level1">
-<h1>4. The final plot</h1>
+<div id="the-final-plot" class="section level2">
+<h2>3. The final plot</h2>
 <hr />
 <p>To join both plots we use the <code>inset_element</code> function
 from the <code>patchwork</code> package. Use the arguments inside this
@@ -421,6 +440,7 @@ href="https://restateinsight.com/aboutme">Vinicius Oike Reginatto</a>
 href="http://www.atlasbrasil.org.br">Atlas of Human Development in
 Brazil</a></p>
 <!-- Close container -->
+</div>
 </div>
 </div>
 <!-- ============================ RELATED SECTION ============================ -->

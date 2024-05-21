@@ -1,12 +1,12 @@
 ---
 title: "Choropleth Map with Bar Chart in R"
-descriptionMeta: "This post describes how to build a choropleth map together with a bar chart in R using ggplot2 and patchwork."
-descriptionTop: "This post describes how to build a choropleth map together with a bar chart in R using `ggplot2` and `patchwork`."
+descriptionMeta: "A map of neighborhood level HDI estimates for Sao Paulo, Brazil. This post describes how to build a choropleth map together with a bar chart in R using ggplot2 and patchwork."
+descriptionTop: "A map of neighborhood level HDI estimates for Sao Paulo, Brazil. This post describes how to build a choropleth map together with a bar chart in R using `ggplot2` and `patchwork`."
 sectionText: "Choropleth section"
 sectionLink: "choropleth-map.html"
 DataToVizText: "About Maps"
 DataToVizLink: "data-to-viz.com/graph/choropleth.html"
-url: "web-choropleth-map-bar-chart"
+url: "web-choropleth-barchart-map"
 output:
   html_document:
       self_contained: false    
@@ -32,15 +32,19 @@ knitr::opts_chunk$set(
 
 # About
 ***
-This page showcases the work of Vinicius Oike Reginatto. You can find the original code on his Github and the original blog post on his personal website.
+This page showcases the work of Vinicius Oike Reginatto. You can find the original code on his [Github](https://github.com/viniciusoike/restateinsight/blob/main/posts/general-posts/2024-02-wz-sp-idh-atlas/index.qmd) and the original blog post on his [personal website](https://restateinsight.com/posts/general-posts/2024-02-wz-sp-idh-atlas/).
 
 Thanks to him for accepting sharing his work here! 🙏🙏 
 
-As a teaser, here is the map we'll learn how to build. This visualization shows the Human Development Index (HDI) at the subregional level in Sao Paulo, Brazil's largest city. The values follow the standard United Nations's HDI: values are in the 0 to 1 range. The visualization combines a choropleth map with a bar chart using the `patchwork` package.
+As a teaser, here is the map we'll learn how to build. This visualization shows the [Human Development Index](https://en.wikipedia.org/wiki/Human_Development_Index) (HDI) at the subregional level in [Sao Paulo](https://en.wikipedia.org/wiki/São_Paulo), Brazil's largest city. The values follow the standard United Nations's HDI: values are in the 0 to 1 range. The visualization combines a choropleth map with a bar chart using the `patchwork` package.
 
-IMAGE
+<br>
+<center>
+![](img/fromTheWeb/choropleth-barchart-teaser.png){width=100%}
+</center>
+<br>
 
-# 1. Data and Libraries
+## Data and Libraries
 ***
 To follow this tutorial you will need the following packages.
 
@@ -63,7 +67,11 @@ atlas <- readr::read_rds(
   )
 ```
 
-# 2. Basic Map
+<br>
+
+# The plot
+***
+## 1. Basic Map
 ***
 
 At its core, this visualization is a choropleth map that shows the spatial distribution of the Human Development Index (HDI) in São Paulo.  The code below uses `geom_sf` to make the map. The additional argument `lwd` makes the lines of each border thinner and `color` changes the color of the line.
@@ -76,7 +84,7 @@ ggplot(atlas) +
   geom_sf(aes(fill = HDI), lwd = 0.05, color = "white")
 ```
 
-## Using bins
+### Using bins
 ***
 
 We use bins to group the continuous variable HDI. This makes it easier to visualize the data and to find spatial clusters. There are many ways to do this but here we use the `scale_fill_fermenter` function directly. This is a quick and easy approach to binning a continuous variable. This function also makes a - in my opinion - nicer looking color legend.
@@ -95,17 +103,15 @@ ggplot(atlas) +
   )
 ```
 
-## Final Map
+### Final Map
 ***
 
 The finished version of the map includes simple labels and uses `theme_map()` from the `ggthemes` package. The arguments inside the `theme` function mostly change the size and the alignment of the text labels. For your final plot you'll most likely want to change the `legend.key.size` and `plot.title` size arguments.
 
 ```{r final-choropleth}
 #| out-width: "100%"
-#| out-height: 900px
-#| fig-width: 9
-#| fig-height: 11
-#| fig-format: svg
+#| fig-width: 15
+#| fig-asp: 0.75
 pmap <- ggplot(atlas) +
   geom_sf(aes(fill = HDI), lwd = 0.05, color = "white") +
   scale_fill_fermenter(
@@ -136,7 +142,9 @@ pmap <- ggplot(atlas) +
 pmap
 ```
 
-# 3. The Bar Chart
+<br>
+
+## 2. The Bar Chart
 ***
 
 To make the bar chart we need to transform the data. We want to calculate the share of the total population that lives within each HDI group. To make the same groups as those created by `scale_fill_fermenter` we use `findInterval` using the same breaks and right-closed intervals. To find this we group by `group_hdi`, sum the `pop` (population) of these regions, and compute the percent share within each group.
@@ -161,7 +169,7 @@ ggplot(pop_hdi, aes(group_hdi, share, fill = group_hdi)) +
   geom_col()
 ```
 
-## Using text labels
+### Using text labels
 ***
 
 Instead of using axis labels we plot the value of each group directly on top of each bar. To improve readability we make the color of the text labels variable (black or white) and also nudge the label of the first and last group horizontally.
@@ -193,7 +201,7 @@ ggplot(pop_hdi, aes(group_hdi, share, fill = group_hdi)) +
   guides(fill = "none", color = "none")
 ```
 
-## Final Bar Chart
+### Final Bar Chart
 ***
 
 We use a custom label for the final version of this plot.
@@ -233,7 +241,9 @@ pcol <- ggplot(pop_hdi, aes(group_hdi, share, fill = group_hdi)) +
 pcol
 ```
 
-# 4. The final plot
+<br>
+
+## 3. The final plot
 ***
 
 To join both plots we use the `inset_element` function from the `patchwork` package. Use the arguments inside this function to customize the display size of the bar chart.
@@ -244,7 +254,7 @@ In this final visualization we can see that nearly 40\% of the city's population
 #| out-width: "100%"
 #| out-height: 900px
 #| fig-width: 9
-#| fig-height: 11
+#| fig-height: 12
 #| fig-format: svg
 p_hdi_atlas <- 
   pmap + inset_element(pcol, left = 0.50, bottom = 0.05, right = 1, top = 0.5)
